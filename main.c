@@ -31,8 +31,6 @@ int main(int argc, char *argv[]){
         return -1;
     }
 
-    printf("Alocando primeira task!\n\n");
-
     tasks.push_back(firstPlay);
 
     for(n=0;n < threadNum;n++){
@@ -57,14 +55,12 @@ void *thread_main(void *args){
         tmpState = NULL;
 
         if(nextState != NULL){
-            //printf("Tem %d jogadas sobrando\n", tasks->size());
-            //Tem Algo para processar
+            //Tem tarefa definida
             currentState = nextState;
         }else{
             pthread_mutex_lock(&lock);
             if(tasks->size() > 0){
-                //printf("Tem %d jogadas sobrando\n", tasks->size());
-                //Verifica Vector para todas as threads
+                //Busca tarefa no vector para todas as threads
                 currentState = tasks->back();;
                 tasks->pop_back();
             }
@@ -73,13 +69,7 @@ void *thread_main(void *args){
 
         nextState = NULL;
 
-        if(currentState != NULL){
-            //printf("Tabuleiro atual em %p:\n", currentState);
-            //print_game(currentState->board);
-        }
-
         if(currentState != NULL && find_moves(currentState, &thread_moves) == 1){
-            //Verificar ordem inserção / retirada
             nextMove = thread_moves.back();
             thread_moves.pop_back();
 
@@ -91,7 +81,7 @@ void *thread_main(void *args){
                 tasks->push_back(tmpState);
                 pthread_mutex_unlock(&lock);
             }
-            /*
+            /* Ordenação do vector compartilhado -> Diminuiu bastante o desempenho
             pthread_mutex_lock(&lock);
             if(tasks->size() > 0){
                 sort(begin(*tasks), end(*tasks), [](auto const &t1, auto const &t2){
@@ -104,7 +94,6 @@ void *thread_main(void *args){
             j = get<2>(nextMove);
 
             if(move_knight(currentState, i, j) == SUCCESS){
-                //printf("Thread realiza movimento para %d, %d!\n", i, j);
                 nextState = currentState;
 
                 if(nextState->turno >= pow(tam, 2)){
@@ -116,14 +105,11 @@ void *thread_main(void *args){
                 }
             }else{
                 //Garantir que jogada trancada não realizará movimento
-                //printf("Jogada trancada não deve realizar movimento!\n");
                 delete_state(&currentState);
             }
         }else if(currentState != NULL){
             //Jogada que se trancou
-            //printf("Jogada trancada com %p!\n", currentState);
             delete_state(&currentState);
-            currentState = NULL;
         }
     }
     pthread_exit(NULL);
@@ -156,12 +142,10 @@ int count_moves(int **board, int i, int j){
 }
 
 int valid_move(int **board, int i, int j){
-    //printf("Verificando jogada em %d %d\n", i, j);
     if(i < 0 || j < 0 || i >= tam || j >= tam){
         return 0;
     }
     if(board[i][j] == 0){
-        //printf("Posicao em %d %d livre!\n", i, j);
         return 1;
     }
 
