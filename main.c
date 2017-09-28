@@ -98,9 +98,11 @@ void *thread_main(void *args){
 
                 if(nextState->turno >= pow(tam, 2)){
                     //Completou o tabuleiro
+                    pthread_mutex_lock(&lock);
                     printf("Completou o tabuleiro!\n");
                     print_game(currentState->board);
                     complete = 1;
+                    pthread_mutex_unlock(&lock);
                     pthread_exit(NULL);
                 }
             }else{
