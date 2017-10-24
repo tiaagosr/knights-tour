@@ -47,8 +47,8 @@ int main(int argc, char *argv[]){
 
 void *thread_main(void *args){
     vector<state> *tasks = (vector<state>*) args;
-    vector<tuple<int, int, int>> thread_moves;
-    tuple<int, int, int> tmpMove, nextMove;
+    vector<possiblePlay> thread_moves;
+    possiblePlay tmpMove, nextMove;
     state tmpState, currentState = NULL, nextState = NULL;
     int i, j;
     while(complete == 0){
@@ -73,7 +73,7 @@ void *thread_main(void *args){
             nextMove = thread_moves.back();
             thread_moves.pop_back();
 
-            for(auto tmpMove: thread_moves){
+            for(possiblePlay tmpMove: thread_moves){
                 i = get<1>(tmpMove);
                 j = get<2>(tmpMove);
                 tmpState = branch_state(&currentState, i, j);
@@ -81,15 +81,7 @@ void *thread_main(void *args){
                 tasks->push_back(tmpState);
                 pthread_mutex_unlock(&lock);
             }
-            /* Ordenação do vector compartilhado -> Diminuiu bastante o desempenho
-            pthread_mutex_lock(&lock);
-            if(tasks->size() > 0){
-                sort(begin(*tasks), end(*tasks), [](auto const &t1, auto const &t2){
-                    return t1->turno < t2->turno;
-                });
-            }
-            pthread_mutex_unlock(&lock);
-            */
+
             i = get<1>(nextMove);
             j = get<2>(nextMove);
 
@@ -155,7 +147,7 @@ int valid_move(int **board, int i, int j){
 }
 
 //Circulo com jogadas possíveis ao redor da atual
-int find_moves(state move, vector<tuple<int, int, int>> *nextPlays){
+int find_moves(state move, vector<possiblePlay> *nextPlays){
     nextPlays->clear();
     int score, isBranch = 0;
     int i = (move->i), j = (move->j);
@@ -186,7 +178,7 @@ int find_moves(state move, vector<tuple<int, int, int>> *nextPlays){
     }
 
     if(nextPlays->size() > 0){
-        sort(begin(*nextPlays), end(*nextPlays), [](auto const &t1, auto const &t2){
+        sort(begin(*nextPlays), end(*nextPlays), [](possiblePlay const &t1, possiblePlay const &t2){
             return get<0>(t1) > get<0>(t2);
         });
         isBranch = 1;

@@ -11,6 +11,7 @@
 #define ERROR -1
 #define SUCCESS 0
 
+typedef std::tuple<int, int, int> possiblePlay;
 typedef struct {
     int i, j, turno, **board;
 } st, *state;
@@ -23,5 +24,5 @@ int move_knight(state move, int i, int j);
 
 int valid_pos(int i, int j);
 int valid_move(int **board, int i, int j);
-int find_moves(state move, std::vector<std::tuple<int, int, int>>*);
+int find_moves(state move, std::vector<possiblePlay>*);
 void print_game(int **matrix);
